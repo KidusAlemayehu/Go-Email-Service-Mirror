@@ -10,6 +10,6 @@ COPY . .
 RUN go build -o api ./cmd/api
 RUN go build -o worker ./cmd/worker
 
-EXPOSE 8080
+EXPOSE ${BACKEND_PORT}
 
 CMD ["./api"]
