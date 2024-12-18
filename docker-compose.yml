@@ -9,20 +9,34 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "node_health_check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   email-service:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
+    env_file:
+      - .env
     environment:
-      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672/
+      - RABBITMQ_URL=${RABBITMQ_URL}
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
 
   worker-service:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: ["./worker"]
     environment:
-      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672/
+      - RABBITMQ_URL=${RABBITMQ_URL}
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+
