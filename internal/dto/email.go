@@ -1,6 +1,6 @@
-package models
+package dto
 
-type EmailTask struct {
+type EmailDTO struct {
 	To          string       `json:"to"`
 	From        string       `json:"from"`
 	Subject     string       `json:"subject"`

@@ -1,6 +1,7 @@
 package models
 
 import (
+	"email-service/internal/dto"
 	"encoding/json"
 	"log"
 
@@ -43,7 +44,7 @@ func NewRabbitMQ(url, queueName string) (*RabbitMQ, error) {
 	}, nil
 }
 
-func (r *RabbitMQ) Publish(task EmailTask) error {
+func (r *RabbitMQ) Publish(task dto.EmailDTO) error {
 	body, err := json.Marshal(task)
 	if err != nil {
 		return err
