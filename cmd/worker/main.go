@@ -12,6 +12,10 @@ import (
 
 func main() {
 	config.LoadENV()
+	db, err := config.InitDB()
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
 
 	rmqURL := os.Getenv("RABBITMQ_URL")
 	if rmqURL == "" {
@@ -40,7 +44,7 @@ func main() {
 			continue
 		}
 
-		if err := services.SendEmailTask(task); err != nil {
+		if err := services.CreateAndSendEmailTask(db, task); err != nil {
 			log.Printf("Error sending email: %v", err)
 			d.Nack(false, true)
 		} else {

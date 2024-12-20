@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"gorm.io/gorm"
 )
 
-func SendEmailHandler(rabbitMQ *models.RabbitMQ) http.HandlerFunc {
+func SendEmailHandler(db *gorm.DB, rabbitMQ *models.RabbitMQ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var task dto.EmailDTO
 		if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
