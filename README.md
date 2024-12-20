@@ -53,7 +53,7 @@ The following API endpoint is available:
 
 #### Send Email
 
-**Endpoint:** `POST /api/v1/email`
+**Endpoint:** `POST /send-email`
 
 **Request Body:**
 ```json
