@@ -16,6 +16,11 @@ import (
 func main() {
 	config.LoadENV()
 
+	db, err := config.InitDB()
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+
 	rmqURL := os.Getenv("RABBITMQ_URL")
 	if rmqURL == "" {
 		log.Println("RABBITMQ_URL environment variable is not set")
@@ -29,7 +34,7 @@ func main() {
 	defer rabbitMQ.Close()
 
 	router := chi.NewRouter()
-	router.Post("/send-email", httpHandlers.SendEmailHandler(rabbitMQ))
+	router.Post("/send-email", httpHandlers.SendEmailHandler(db, rabbitMQ))
 
 	server_port := os.Getenv("BACKEND_PORT")
 	if server_port == "" {
