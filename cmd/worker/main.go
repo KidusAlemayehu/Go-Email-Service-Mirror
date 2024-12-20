@@ -2,6 +2,7 @@ package main
 
 import (
 	"email-service/config"
+	"email-service/internal/dto"
 	"email-service/internal/models"
 	"email-service/internal/services"
 	"encoding/json"
@@ -32,14 +33,14 @@ func main() {
 	for d := range msgs {
 		log.Printf("Received a message: %s", d.Body)
 
-		var task models.EmailTask
+		var task dto.EmailDTO
 		if err := json.Unmarshal(d.Body, &task); err != nil {
 			log.Printf("Error unmarshalling message: %v", err)
 			d.Nack(false, false)
 			continue
 		}
 
-		if err := services.SendEmail(task); err != nil {
+		if err := services.SendEmailTask(task); err != nil {
 			log.Printf("Error sending email: %v", err)
 			d.Nack(false, true)
 		} else {
