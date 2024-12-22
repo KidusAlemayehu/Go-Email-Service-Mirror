@@ -31,7 +31,6 @@ type Attachment struct {
 	Filename    string    `gorm:"not null" json:"filename"`
 	ContentType string    `gorm:"not null" json:"content_type"`
 	Data        string    `gorm:"not null" json:"data"`
-
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }

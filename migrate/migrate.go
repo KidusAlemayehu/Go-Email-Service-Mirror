@@ -2,7 +2,7 @@ package migrate
 
 import (
 	"email-service/internal/models"
-	"log"
+	"email-service/utils/log"
 
 	"gorm.io/gorm"
 )
@@ -20,6 +20,6 @@ func ModelsAutoMigrate(db *gorm.DB) error {
 		}
 	}
 
-	log.Println("Database schema migrated successfully!")
+	log.Logger.Info("Database schema migrated successfully!")
 	return nil
 }

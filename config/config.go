@@ -2,8 +2,8 @@ package config
 
 import (
 	"email-service/migrate"
+	"email-service/utils/log"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -14,7 +14,7 @@ import (
 func LoadENV() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Error loading .env file")
+		log.Logger.Error("Error loading .env file")
 	}
 }
 
@@ -33,7 +33,7 @@ func InitDB() (*gorm.DB, error) {
 		return nil, fmt.Errorf("error connecting to the database: %v", err)
 	}
 
-	fmt.Println("Successfully connected to the database!")
+	log.Logger.Info("Successfully connected to the database!")
 
 	migrate.ModelsAutoMigrate(db)
 

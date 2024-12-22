@@ -2,10 +2,11 @@ package models
 
 import (
 	"email-service/internal/dto"
+	"email-service/utils/log"
 	"encoding/json"
-	"log"
 
 	"github.com/streadway/amqp"
+	"go.uber.org/zap"
 )
 
 type RabbitMQ struct {
@@ -17,11 +18,13 @@ type RabbitMQ struct {
 func NewRabbitMQ(url, queueName string) (*RabbitMQ, error) {
 	conn, err := amqp.Dial(url)
 	if err != nil {
+		log.Logger.Error("Failed to connect to RabbitMQ: %v", zap.Error(err))
 		return nil, err
 	}
 
 	channel, err := conn.Channel()
 	if err != nil {
+		log.Logger.Error("Failed to open channel: %v", zap.Error(err))
 		return nil, err
 	}
 
@@ -47,6 +50,7 @@ func NewRabbitMQ(url, queueName string) (*RabbitMQ, error) {
 func (r *RabbitMQ) Publish(task dto.EmailDTO) error {
 	body, err := json.Marshal(task)
 	if err != nil {
+		log.Logger.Error("Error marshaling message: %v", zap.Error(err))
 		return err
 	}
 
@@ -61,10 +65,11 @@ func (r *RabbitMQ) Publish(task dto.EmailDTO) error {
 		},
 	)
 	if err != nil {
+		log.Logger.Error("Error publishing message: %v", zap.Error(err))
 		return err
 	}
 
-	log.Printf("Message sent to queue: %s", task.To)
+	log.Logger.Info("Message sent to queue: %s", zap.String("to", task.To))
 	return nil
 }
 
@@ -79,12 +84,13 @@ func (r *RabbitMQ) Consume() (<-chan amqp.Delivery, error) {
 		amqp.Table{},
 	)
 	if err != nil {
+		log.Logger.Error("Error consuming messages: %v", zap.Error(err))
 		return nil, err
 	}
+	log.Logger.Info("Consumer started consuming messages")
 	return msgs, nil
 }
 
-// Close closes the RabbitMQ connection and channel
 func (r *RabbitMQ) Close() {
 	r.channel.Close()
 	r.conn.Close()

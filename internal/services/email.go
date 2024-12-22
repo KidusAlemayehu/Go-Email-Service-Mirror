@@ -4,9 +4,11 @@ import (
 	"email-service/internal/dto"
 	"email-service/internal/models"
 	"email-service/utils"
+	"email-service/utils/log"
 	"fmt"
 	"time"
 
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -36,15 +38,17 @@ func CreateAndSendEmailTask(db *gorm.DB, task dto.EmailDTO) error {
 	}
 
 	if err := db.Create(&emailTask).Error; err != nil {
+		log.Logger.Error("Error creating email task: %v", zap.Error(err))
 		return fmt.Errorf("failed to create email task in DB: %w", err)
 	}
-
+	log.Logger.Info("Email task created successfully. Processing: %s", zap.String("to", task.To))
 	return processEmailTask(db, task, &emailTask)
 }
 
 // processEmailTask attempts to send the email and handles retries.
 func processEmailTask(db *gorm.DB, task dto.EmailDTO, emailTask *models.EmailTask) error {
 	// Try sending the email task up to maxRetries
+
 	for retries := 0; retries < maxRetries; retries++ {
 		err := utils.SendMail(task)
 		if err == nil {
@@ -53,6 +57,7 @@ func processEmailTask(db *gorm.DB, task dto.EmailDTO, emailTask *models.EmailTas
 			emailTask.RetryCount = retries
 			emailTask.LastAttempt = time.Now()
 			db.Save(&emailTask)
+			log.Logger.Info("Email sent successfully. Task ID: %s", zap.String("id", emailTask.ID.String()))
 			return nil
 		}
 
@@ -61,7 +66,7 @@ func processEmailTask(db *gorm.DB, task dto.EmailDTO, emailTask *models.EmailTas
 		emailTask.RetryCount = retries + 1
 		emailTask.LastAttempt = time.Now()
 		db.Save(&emailTask)
-
+		log.Logger.Error("Error sending email. Retrying. Task ID: %s, Error: %v", zap.String("id", emailTask.ID.String()), zap.Error(err))
 		// Sleep before retrying
 		time.Sleep(retryDelay)
 	}
@@ -71,5 +76,7 @@ func processEmailTask(db *gorm.DB, task dto.EmailDTO, emailTask *models.EmailTas
 	emailTask.RetryCount = maxRetries
 	emailTask.LastAttempt = time.Now()
 	db.Save(&emailTask)
+	log.Logger.Error(fmt.Sprintf("Email sending failed after %d retries.", maxRetries), zap.String("task_id", emailTask.ID.String()), zap.Error(fmt.Errorf("Connection Timeout, Maximum retry limit reached.")))
+
 	return fmt.Errorf("email sending failed after %d retries", maxRetries)
 }
