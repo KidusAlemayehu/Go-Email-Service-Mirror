@@ -4,13 +4,15 @@ import (
 	"email-service/config"
 	httpHandlers "email-service/internal/http"
 	"email-service/internal/models"
+	"email-service/utils/log"
 	"fmt"
-	"log"
+
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -18,18 +20,18 @@ func main() {
 
 	db, err := config.InitDB()
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		log.Logger.Info("Database initialization failed", zap.Error(err))
 	}
 
 	rmqURL := os.Getenv("RABBITMQ_URL")
 	if rmqURL == "" {
-		log.Println("RABBITMQ_URL environment variable is not set")
+		log.Logger.Error("RABBITMQ_URL environment variable is not set")
 		return
 	}
 
 	rabbitMQ, err := models.NewRabbitMQ(rmqURL, "email-queue")
 	if err != nil {
-		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+		log.Logger.Error("Failed to connect to RabbitMQ: %v", zap.Error(err))
 	}
 	defer rabbitMQ.Close()
 
@@ -38,6 +40,7 @@ func main() {
 
 	server_port := os.Getenv("BACKEND_PORT")
 	if server_port == "" {
+		log.Logger.Error("Variable SERVER_PORT is not set")
 		panic("SERVER_PORT is not set")
 	}
 
@@ -47,7 +50,7 @@ func main() {
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 20 * time.Second,
 	}
-	log.Printf("Server started on port :> %s \n", server_port)
+	log.Logger.Info("Server started on port :> %s \n", zap.String("SERVER_PORT", server_port))
 	err = server.ListenAndServe()
 	if err != nil {
 		panic(err)
