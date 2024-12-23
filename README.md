@@ -21,12 +21,13 @@ Before running the project, ensure you have the following installed:
 ### Setup
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/your-username/email-service.git
    cd email-service
    ```
-
 2. Create an `.env` file in the root directory with the following content:
+
    ```env
    SMTP_HOST=smtp.example.com
    SMTP_PORT=587
@@ -41,8 +42,8 @@ Before running the project, ensure you have the following installed:
    DB_PASSWORD=your-database-password 
    SECRET_KEY=your-secret-key
    ```
-
 3. Build and start the services using Docker Compose:
+
    ```bash
    docker-compose up --build
    ```
@@ -56,6 +57,7 @@ The following API endpoint is available:
 **Endpoint:** `POST /send-email`
 
 **Request Body:**
+
 ```json
 {
   "from": "sender@example.com",
@@ -76,6 +78,7 @@ The following API endpoint is available:
 ```
 
 **Response:**
+
 - Success: HTTP 202 Accepted
   ```json
   {
@@ -119,33 +122,33 @@ The project uses Docker for containerization. The `docker-compose.yml` file defi
 ### Build and Run
 
 To start the application:
+
 ```bash
 docker-compose up --build
 ```
 
 To stop the application:
+
 ```bash
 docker-compose down
 ```
 
 ## Environment Variables
 
-| Variable       | Description                            |
-|----------------|----------------------------------------|
-| SMTP_HOST      | SMTP server host                      |
-| SMTP_PORT      | SMTP server port                      |
-| SMTP_USER      | SMTP username                         |
-| SMTP_PASSWORD  | SMTP password                         |
-| RABBITMQ_URL   | RabbitMQ connection URL               |
-| DATABASE_URL   | Database connection string            |
-| DB_NAME        | Database Name                         |
-| DB_HOST        | Database Host                         |
-| DB_USER        | Database User                         |
-| DB_PORT        | Database Port                         |
-| DB_PASSWORD    | Database password                     |
+| Variable      | Description                |
+| ------------- | -------------------------- |
+| SMTP_HOST     | SMTP server host           |
+| SMTP_PORT     | SMTP server port           |
+| SMTP_USER     | SMTP username              |
+| SMTP_PASSWORD | SMTP password              |
+| RABBITMQ_URL  | RabbitMQ connection URL    |
+| DATABASE_URL  | Database connection string |
+| DB_NAME       | Database Name              |
+| DB_HOST       | Database Host              |
+| DB_USER       | Database User              |
+| DB_PORT       | Database Port              |
+| DB_PASSWORD   | Database password          |
 
 ## License
 
-This project is licensed under the [Apache 2.0 License](./LICENSE).
-
-
+###### This project is licensed under the [Apache 2.0 License](./LICENSE).

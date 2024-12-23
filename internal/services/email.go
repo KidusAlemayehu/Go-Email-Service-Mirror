@@ -6,6 +6,7 @@ import (
 	"email-service/utils"
 	"email-service/utils/log"
 	"fmt"
+	"math"
 	"time"
 
 	"go.uber.org/zap"
@@ -13,7 +14,6 @@ import (
 )
 
 const maxRetries = 5
-const retryDelay = 5 * time.Second
 
 // CreateAndSendEmailTask creates the initial email task and attempts to send it
 func CreateAndSendEmailTask(db *gorm.DB, task dto.EmailDTO) error {
@@ -66,9 +66,9 @@ func processEmailTask(db *gorm.DB, task dto.EmailDTO, emailTask *models.EmailTas
 		emailTask.RetryCount = retries + 1
 		emailTask.LastAttempt = time.Now()
 		db.Save(&emailTask)
+		backoff := time.Duration(math.Pow(2, float64(retries))) * time.Second
 		log.Logger.Error("Error sending email. Retrying. Task ID: %s, Error: %v", zap.String("id", emailTask.ID.String()), zap.Error(err))
-		// Sleep before retrying
-		time.Sleep(retryDelay)
+		time.Sleep(backoff)
 	}
 
 	// If maxRetries reached and the email failed, log it and stop retrying
